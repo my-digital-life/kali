@@ -37,3 +37,31 @@ or systems where screen blanking and locking must not occur.
 
    ```bash
    chmod +x disable-xfce-screensaver.sh
+   ```
+
+### Run it:   
+
+./disable-xfce-screensaver.sh   
+
+### Verify settings:   
+
+xfconf-query -c xfce4-power-manager -lv
+xfconf-query -c xfce4-screensaver -lv   
+
+```
+/xfce4-power-manager/blank-on-ac                    0
+/xfce4-power-manager/blank-on-battery               0
+/xfce4-power-manager/dpms-enabled                   false
+/xfce4-power-manager/dpms-off-time                  0
+/xfce4-power-manager/dpms-sleep-time                0
+/xfce4-power-manager/lock-screen-suspend-hibernate  false
+/xfce4-power-manager/power-button-action            3
+/xfce4-power-manager/show-panel-label               0
+/xfce4-power-manager/show-tray-icon                 false
+/lock/embedded-keyboard/command  onboard -e
+/lock/embedded-keyboard/enabled  false
+/lock/enabled                    false
+/lock/sleep-activation           false
+/saver/enabled                   false
+/saver/mode                      blank
+```
