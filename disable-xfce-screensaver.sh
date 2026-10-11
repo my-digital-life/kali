@@ -1,39 +1,54 @@
-# Disable XFCE Screensaver & Display Power Management (Kali Linux 2026)
+#!/bin/bash
 
-This script force-disables all XFCE screensaver, screen locking, DPMS, and display
-power-management features on **Kali Linux 2026 (XFCE edition)**.
+echo "[1/8] Disable lock on suspend/hibernate (power manager)..."
+xfconf-query -c xfce4-power-manager \
+  -p /xfce4-power-manager/lock-screen-suspend-hibernate \
+  --create -t bool -s false
 
-It directly modifies the correct `xfconf` keys used by the XFCE Power Manager and
-XFCE Screensaver, ensuring that:
+echo "[2/8] Disable display blanking (AC/battery)..."
+xfconf-query -c xfce4-power-manager \
+  -p /xfce4-power-manager/blank-on-ac \
+  --create -t int -s 0
+xfconf-query -c xfce4-power-manager \
+  -p /xfce4-power-manager/blank-on-battery \
+  --create -t int -s 0
 
-- Screensaver is fully disabled  
-- Lock screen is disabled  
-- Display blanking is disabled  
-- DPMS sleep/off timers are disabled  
-- Suspend/hibernate lock is disabled  
-- X11 screen blanking is disabled  
-- Light-locker is terminated if running  
+echo "[3/8] Disable DPMS + timers..."
+xfconf-query -c xfce4-power-manager \
+  -p /xfce4-power-manager/dpms-enabled \
+  --create -t bool -s false
+xfconf-query -c xfce4-power-manager \
+  -p /xfce4-power-manager/dpms-sleep-time \
+  --create -t int -s 0
+xfconf-query -c xfce4-power-manager \
+  -p /xfce4-power-manager/dpms-off-time \
+  --create -t int -s 0
 
-This is useful for live USB environments, kiosk setups, long-running tasks,
-or systems where screen blanking and locking must not occur.
+echo "[4/8] Disable XFCE screensaver + lock..."
+xfconf-query -c xfce4-screensaver \
+  -p /saver/enabled \
+  --create -t bool -s false
+xfconf-query -c xfce4-screensaver \
+  -p /lock/enabled \
+  --create -t bool -s false
 
----
+echo "[5/8] Force saver mode to 'blank' (no fancy saver)..."
+xfconf-query -c xfce4-screensaver \
+  -p /saver/mode \
+  --create -t string -s blank
 
-## Features
+echo "[6/8] Disable embedded keyboard on lock (just in case)..."
+xfconf-query -c xfce4-screensaver \
+  -p /lock/embedded-keyboard/enabled \
+  --create -t bool -s false
 
-- Disables XFCE screensaver  
-- Disables XFCE lock screen  
-- Disables DPMS (sleep/off timers)  
-- Sets blank-on-AC and blank-on-battery to 0  
-- Prevents lock-on-suspend  
-- Applies X11 `xset` no-blank settings  
-- Kills `xfce4-screensaver` and `light-locker` if active  
+echo "[7/8] Kill screensaver/locker daemons..."
+pkill -x xfce4-screensaver 2>/dev/null
+pkill -x light-locker 2>/dev/null
 
----
+echo "[8/8] Apply X11 no-blank / no-DPMS..."
+xset s off
+xset -dpms
+xset s noblank
 
-## Usage
-
-1. Download or copy the script to your system:
-
-   ```bash
-   chmod +x disable-xfce-screensaver.sh
+echo "✔ XFCE power-manager + screensaver + lock + DPMS forced disabled."
